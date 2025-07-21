@@ -1,11 +1,9 @@
 
 import streamlit as st
 import google.generativeai as genai
-# Correct import: Import YouTubeTranscriptApi class
-from youtube_transcript_api import YouTubeTranscriptApi
-# Correct import for exceptions from the exceptions submodule
-from youtube_transcript_api.exceptions import TranscriptsDisabled, NoTranscriptFound
-import re # Import the re module for regular expressions
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+import re
+
 
 # Configure the Google Generative AI library with your API key
 # IMPORTANT: For deployment, ensure you've added GEMINI_API_KEY to Streamlit Secrets.
