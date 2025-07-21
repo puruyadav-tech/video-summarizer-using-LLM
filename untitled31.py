@@ -80,7 +80,8 @@ def generate_gemini_content(transcript_text: str, prompt_text: str) -> str:
         raise Exception(f"Gemini API call failed: {e}")
 
 # --- Streamlit UI Components ---
-st.set_page_config(page_title="YouTube Video Summarizer", layout="centered", icon="📹")
+st.set_page_config(page_title="YouTube Video Summarizer", layout="centered")
+
 
 st.markdown("<h1 style='text-align: center;'>📹 YouTube Video Summarizer</h1>", unsafe_allow_html=True)
 st.markdown("Enter a YouTube video link below to get a detailed summary of its transcript.")
