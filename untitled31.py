@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import google.generativeai as genai
 # Correct import: Import YouTubeTranscriptApi class
