@@ -1,8 +1,10 @@
 
 import streamlit as st
 import google.generativeai as genai
-from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+## Function to get the transcript data from YouTube videos
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound, CouldNotRetrieveTranscript
 import re
+
 
 
 # Configure the Google Generative AI library with your API key
@@ -21,41 +23,38 @@ prompt = """You are a YouTube video summarizer. You will be taking the transcrip
 and summarizing the entire video and providing the important summary in points
 within 250 words. Please provide the summary of the text given here: """
 
-## Function to get the transcript data from YouTube videos
-@st.cache_data # Cache the transcript to avoid re-fetching on rerun
+
+@st.cache_data
 def extract_transcript_details(youtube_video_url):
-    """
-    Extracts the transcript from a given YouTube video URL.
-
-    Args:
-        youtube_video_url (str): The URL of the YouTube video.
-
-    Returns:
-        str: The concatenated transcript text.
-    """
     try:
-        # Improved regex to extract video ID from various YouTube URL formats
-        video_id_match = re.search(r'(?:v=|youtu\.be\/|http:\/\/googleusercontent\.com\/youtube\.com\/\d+)([a-zA-Z0-9_-]{11})', youtube_video_url)
+        video_id_match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", youtube_video_url)
         if not video_id_match:
-            raise ValueError("Invalid YouTube URL format provided. Please use a valid YouTube link.")
+            raise ValueError("Invalid YouTube URL format provided.")
         video_id = video_id_match.group(1)
 
-        # Corrected call: Use YouTubeTranscriptApi.get_transcript as a static method
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+        # Try to get transcript including auto-generated ones
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
 
-        # Concatenate all transcript parts into a single string
-        transcript = " ".join([item["text"] for item in transcript_list])
-        return transcript
+        try:
+            # Try English manual transcript first
+            transcript = transcript_list.find_manually_created_transcript(['en'])
+        except NoTranscriptFound:
+            # Fallback to English auto-generated transcript
+            transcript = transcript_list.find_generated_transcript(['en'])
+
+        transcript_data = transcript.fetch()
+        combined_text = " ".join([entry['text'] for entry in transcript_data])
+        return combined_text
 
     except TranscriptsDisabled:
-        # Specific error for disabled transcripts
         raise Exception("Transcripts are disabled for this video by the uploader.")
     except NoTranscriptFound:
-        # Specific error for no transcript found (e.g., no English transcript)
-        raise Exception("No English transcript found for this video.")
+        raise Exception("No English transcript found for this video (manual or auto-generated).")
+    except CouldNotRetrieveTranscript:
+        raise Exception("Could not retrieve transcript from YouTube API. Might be a rate-limit or region issue.")
     except Exception as e:
-        # Catch any other potential errors from YouTubeTranscriptApi
         raise Exception(f"Failed to fetch transcript: {e}")
+
 
 ## Function to generate the summary based on Prompt from Google Gemini Pro
 def generate_gemini_content(transcript_text: str, prompt_text: str) -> str:
