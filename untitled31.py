@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import google.generativeai as genai
 # Correct import: Import YouTubeTranscriptApi class
@@ -41,7 +42,7 @@ def extract_transcript_details(youtube_video_url):
             raise ValueError("Invalid YouTube URL format provided. Please use a valid YouTube link.")
         video_id = video_id_match.group(1)
 
-        # Corrected call: Directly use get_transcript function
+        # Corrected call: Use YouTubeTranscriptApi.get_transcript as a static method
         transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
 
         # Concatenate all transcript parts into a single string
@@ -132,3 +133,4 @@ if st.button("Get Summary", use_container_width=True):
 
 st.markdown("---")
 st.caption("Powered by Google Gemini and YouTube Transcript API")
+```
