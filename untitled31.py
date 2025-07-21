@@ -32,31 +32,36 @@ def extract_transcript_details(youtube_video_url):
             raise ValueError("Invalid YouTube URL format provided.")
         video_id = video_id_match.group(1)
 
-        # Try to get transcript including auto-generated ones
         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
 
         try:
-            # Try English manual transcript first
-            transcript = transcript_list.find_manually_created_transcript(['en'])
+            transcript = transcript_list.find_transcript(['en'])
         except NoTranscriptFound:
-            # Fallback to English auto-generated transcript
-            transcript = transcript_list.find_generated_transcript(['en'])
-       try:
-    transcript_data = transcript.fetch()
-    combined_text = " ".join([entry['text'] for entry in transcript_data])
-    return combined_text
-except Exception as e:
-    raise Exception(f"Transcript fetch failed — possibly blocked by YouTube: {e}")
+            try:
+                transcript = transcript_list.find_generated_transcript(['en'])
+            except NoTranscriptFound:
+                transcript = transcript_list.find_transcript(transcript_list._transcripts.keys())
 
+        st.info(f"Transcript language: {transcript.language}")
+        st.info(f"Is auto-generated: {transcript.is_generated}")
+
+        # This is the try-except block that was failing due to indentation
+        try:
+            transcript_data = transcript.fetch()
+            combined_text = " ".join([entry['text'] for entry in transcript_data])
+            return combined_text
+        except Exception as e:
+            raise Exception(f"Transcript fetch failed — possibly blocked by YouTube: {e}")
 
     except TranscriptsDisabled:
         raise Exception("Transcripts are disabled for this video by the uploader.")
     except NoTranscriptFound:
-        raise Exception("No English transcript found for this video (manual or auto-generated).")
+        raise Exception("No transcript found in any language (manual or auto-generated).")
     except CouldNotRetrieveTranscript:
-        raise Exception("Could not retrieve transcript from YouTube API. Might be a rate-limit or region issue.")
+        raise Exception("Could not retrieve transcript — API may be blocked or quota exceeded.")
     except Exception as e:
         raise Exception(f"Failed to fetch transcript: {e}")
+
 
 
 ## Function to generate the summary based on Prompt from Google Gemini Pro
