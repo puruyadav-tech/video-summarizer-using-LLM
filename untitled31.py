@@ -1,7 +1,8 @@
 import streamlit as st
 import google.generativeai as genai
-# Corrected import: import get_transcript directly from the module
-from youtube_transcript_api import get_transcript, TranscriptsDisabled, NoTranscriptFound
+# Corrected import for get_transcript and the exceptions
+from youtube_transcript_api import get_transcript
+from youtube_transcript_api.exceptions import TranscriptsDisabled, NoTranscriptFound # Corrected import path for exceptions
 import re # Import the re module for regular expressions
 
 # Configure the Google Generative AI library with your API key
