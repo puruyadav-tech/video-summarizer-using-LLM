@@ -42,7 +42,7 @@ def extract_transcript_details(youtube_video_url):
         video_id = video_id_match.group(1)
 
         # Corrected call: Directly use get_transcript function
-     transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
 
         # Concatenate all transcript parts into a single string
         transcript = " ".join([item["text"] for item in transcript_list])
