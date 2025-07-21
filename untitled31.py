@@ -41,10 +41,13 @@ def extract_transcript_details(youtube_video_url):
         except NoTranscriptFound:
             # Fallback to English auto-generated transcript
             transcript = transcript_list.find_generated_transcript(['en'])
+try:
+    transcript_data = transcript.fetch()
+    combined_text = " ".join([entry['text'] for entry in transcript_data])
+    return combined_text
+except Exception as e:
+    raise Exception(f"Transcript fetch failed — possibly blocked by YouTube: {e}")
 
-        transcript_data = transcript.fetch()
-        combined_text = " ".join([entry['text'] for entry in transcript_data])
-        return combined_text
 
     except TranscriptsDisabled:
         raise Exception("Transcripts are disabled for this video by the uploader.")
