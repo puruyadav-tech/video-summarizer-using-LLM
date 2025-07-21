@@ -41,7 +41,7 @@ def extract_transcript_details(youtube_video_url):
         except NoTranscriptFound:
             # Fallback to English auto-generated transcript
             transcript = transcript_list.find_generated_transcript(['en'])
-try:
+       try:
     transcript_data = transcript.fetch()
     combined_text = " ".join([entry['text'] for entry in transcript_data])
     return combined_text
